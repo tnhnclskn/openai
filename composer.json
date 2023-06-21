@@ -1,0 +1,20 @@
+{
+    "name": "tnhnclskn/openai",
+    "description": "OpenAI API Advanced for Chat Completions with Functions",
+    "type": "library",
+    "require": {
+        "guzzlehttp/guzzle": "^7.7"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Tnhnclskn\\OpenAI\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tunahan Caliskan",
+            "email": "mail@tunahancaliskan.com"
+        }
+    ]
+}
