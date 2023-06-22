@@ -13,44 +13,54 @@ class Chat
 
     private array $messages = [];
     private array $functions = [];
-    private string $model = 'gpt-3.5-turbo-0613';
+    private string $model;
+    private $onMessage = null;
 
     public function __construct(
         private OpenAI $openAI,
         private string $systemMessage = '',
         array $functions = []
     ) {
-        if ($systemMessage)
-            $this->systemMessage($systemMessage);
-
+        $this->model = $openAI->config('chat_model');
         $this->loadFunctions($functions);
+    }
+
+    public function onMessage(callable $onMessage): self
+    {
+        $this->onMessage = $onMessage;
+        return $this;
     }
 
     private function message(array $message): self
     {
+        if ($this->onMessage) ($this->onMessage)($message);
         $this->messages[] = $message;
         return $this;
     }
 
-    public function systemMessage(string $content): self
+    private function messages(): array
     {
-        return $this->message([
+        $messages = [];
+
+        if ($this->systemMessage) $messages[] = [
             'role' => self::ROLE_SYSTEM,
-            'content' => $content,
-        ]);
+            'content' => $this->systemMessage,
+        ];
+
+        $messages = array_merge($messages, $this->messages);
+
+        return $messages;
     }
 
     public function importMessages(array $messages): self
     {
-        foreach ($messages as $message)
-            $this->message($message);
-
+        $this->messages = array_merge($this->messages, $messages);
         return $this;
     }
 
     public function exportMessages(): array
     {
-        return array_slice($this->messages, 1);
+        return $this->messages;
     }
 
     public function loadFunctions(array $functions): self
@@ -81,11 +91,11 @@ class Chat
     {
         $data = [
             'model' => $this->model,
-            'messages' => $this->messages,
+            'messages' => $this->messages(),
         ];
 
-        $functions = $this->toFunctions();
-        if ($functions) $data['functions'] = $functions;
+        if ($functions = $this->toFunctions())
+            $data['functions'] = $functions;
 
         $response = $this->openAI->post('/v1/chat/completions', $data);
 

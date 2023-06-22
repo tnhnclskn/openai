@@ -14,15 +14,25 @@ You can install the library using Composer. Run the following command in your pr
 $ composer require tnhnclskn/openai
 ```
 
-## Usage with functions
+## Usage Chat
 
 ```php
 <?php
 
 use Tnhnclskn\OpenAI\OpenAI;
-use Tnhnclskn\OpenAI\Chat\BaseFunction;
 
 require_once __DIR__ . '/vendor/autoload.php';
+
+$client = new OpenAI($organizationId, $secretKey);
+$chat = $client->chat('You are a helpful assistant.');
+```
+
+## Usage with functions
+
+```php
+// ...
+
+use Tnhnclskn\OpenAI\Chat\BaseFunction;
 
 class GetCurrentWeather extends BaseFunction
 {
@@ -61,10 +71,8 @@ class GetCurrentWeather extends BaseFunction
     }
 }
 
-$client = new OpenAI($organizationId, $secretKey);
-$chat = $client->chat('You are a helpful assistant.');
-
 $chat->loadFunction(GetCurrentWeather::class);
+
 $reply = $chat->prompt('What\'s the weather like in Boston?');
 // Reply: The weather in Boston is currently 72°F and sunny with some winds.
 ```
@@ -72,14 +80,7 @@ $reply = $chat->prompt('What\'s the weather like in Boston?');
 ## Usage only prompt
 
 ```php
-<?php
-
-use Tnhnclskn\OpenAI\OpenAI;
-
-require_once __DIR__ . '/vendor/autoload.php';
-
-$client = new OpenAI($organizationId, $secretKey);
-$chat = $client->chat('You are a helpful assistant.');
+// ...
 
 $reply = $chat->prompt('What\'s the yellow flower?');
 // Reply: The yellow flower is a common name that could refer to various types of flowers. Some examples include sunflowers, daffodils, marigolds, dandelions, or buttercups. Can you provide any additional information or description about the flower you are referring to?
@@ -92,7 +93,21 @@ $reply = $chat->prompt('What\'s the yellow flower?');
 $messages = $chat->exportMessages();
 
 // Import messages for continue conversation
-$chat->importMessages($messages);
+$newChat = $openAI->chat('You are another helpful assistant.');
+$newChat->importMessages($messages);
+```
+
+## Configuration
+
+```php
+// Configuration
+$config = [
+    'chat_model' => 'gpt-3.5-turbo-0613', // if you want to use function chat, you must use gpt-3.5-turbo-0613 model or higher
+    'retry' => 3, // number of retries
+    'retry_delay' => 1, // delay between retries in seconds
+];
+
+$client = new OpenAI($organizationId, $secretKey, $config);
 ```
 
 ## License
