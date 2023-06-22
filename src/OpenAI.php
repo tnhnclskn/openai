@@ -9,7 +9,7 @@ class OpenAI
 {
     const DEFAULT_CONFIG = [
         'chat_model' => 'gpt-3.5-turbo-0613',
-        'retry' => false,
+        'retries' => false,
         'retry_delay' => 0,
     ];
 
@@ -38,7 +38,7 @@ class OpenAI
 
     public function request(string $method, string $uri, array $data = [], int $try = 0)
     {
-        $retry = $this->config('retry');
+        $retries = $this->config('retries');
         $retryDelay = $this->config('retry_delay');
 
         try {
@@ -54,8 +54,8 @@ class OpenAI
             $responseBodyAsArray = json_decode($responseBodyAsString, true);
             $error = $responseBodyAsArray['error'];
 
-            if ($responseCode === 500 && $retry > 0) {
-                if ($try < $retry) {
+            if ($responseCode === 500 && $retries > 0) {
+                if ($try < $retries) {
                     if ($retryDelay) sleep($retryDelay);
                     return $this->request($method, $uri, $data, $try + 1);
                 }
