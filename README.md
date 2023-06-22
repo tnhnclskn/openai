@@ -103,7 +103,7 @@ $newChat->importMessages($messages);
 // Configuration
 $config = [
     'chat_model' => 'gpt-3.5-turbo-0613', // if you want to use function chat, you must use gpt-3.5-turbo-0613 model or higher
-    'retry' => 3, // number of retries
+    'retries' => 3, // number of retries
     'retry_delay' => 1, // delay between retries in seconds
 ];
 
